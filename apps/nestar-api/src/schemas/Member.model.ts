@@ -43,6 +43,11 @@ const MemberSchema = new Schema(
         type: String,
     },
 
+    memberImage: {
+        type: String,
+        default: '',
+    },
+
     memberAddress: {
         type: String,
     },
