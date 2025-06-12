@@ -16,12 +16,12 @@ export class MemberService {
         return 'Member login successful';
     }
     
-    public async updatemember(): Promise<string> {
+    public async updateMember(): Promise<string> {
         console.log('Service: updatemember');
         return 'Member update successful';
     }
     
-    public async getmember(): Promise<string> {
+    public async getMember(): Promise<string> {
         console.log('Service: getmember');
         return 'getmember successful';
     }
