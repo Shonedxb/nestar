@@ -24,23 +24,23 @@ export class MemberService {
     }
     
     public async login(input: LoginInput): Promise<Member> {
-        const { memberNick, memberPassword } = input;
-        const response: Member = await this.memberModel
-            .findOne({ memberNick: memberNick })
-            .select('+memberPassword')
-            .exec();
+    const { memberNick, memberPassword } = input;
+    const response = await this.memberModel
+        .findOne({ memberNick })
+        .select('+memberPassword')
+        .exec();
 
-        if (!response || response.memberStatus === MemberStatus.DELETE) { throw new InternalServerErrorException(Message.NO_MEMBER_NICK); 
-        } else if (response.memberStatus === MemberStatus.BLOCK) {
-            throw new InternalServerErrorException(Message.BLOCKED_USER);
-        }
+    if (!response) throw new BadRequestException(Message.NO_MEMBER_NICK);
+    if (response.memberStatus === MemberStatus.DELETE) throw new BadRequestException(Message.NO_MEMBER_NICK);
+    if (response.memberStatus === MemberStatus.BLOCK) throw new InternalServerErrorException(Message.BLOCKED_USER);
 
-        //TODO: Implement password verification with bcrypt or similar library
+    const isMatch = memberPassword === response.memberPassword; // Replace with bcrypt.compare
 
-        const isMatch = memberPassword === response.memberPassword; // Placeholder for actual password check
-        if (!isMatch) throw new InternalServerErrorException(Message.WRONG_PASSWORD);
+    //TODO: Implement password verification with bcrypt or similar library
 
-        return response;
+    if (!isMatch) throw new InternalServerErrorException(Message.WRONG_PASSWORD);
+
+    return response;
     }
     
     public async updateMember(): Promise<string> {
