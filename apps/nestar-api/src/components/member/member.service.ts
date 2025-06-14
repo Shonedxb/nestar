@@ -5,17 +5,19 @@ import { Member } from '../../libs/dto/member/member';
 import { LoginInput, MemberInput } from '../../libs/dto/member/member.input';
 import { MemberStatus } from '../../libs/enums/member.enum';
 import { Message } from '../../libs/enums/common.enum';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class MemberService {
-    constructor(@InjectModel('Member') private readonly memberModel: Model<Member>) {}
+    constructor(
+        @InjectModel('Member') private readonly memberModel: Model<Member>, private authService: AuthService) {}
     
     public async signup(input: MemberInput): Promise<Member> {
-        //TODO: Implement HASH password
-
+        input.memberPassword = await this.authService.hashPassword(input.memberPassword);
         try {
             const result = await this.memberModel.create(input);
         //TODO: Implement Authentication token generation
+            result.accessToken = await this.authService.createToken(result);
             return result;
         }   catch (err) {
             console.log('Error, Service.model:', err.message);
@@ -30,21 +32,20 @@ export class MemberService {
         .select('+memberPassword')
         .exec();
 
-    if (!response) throw new BadRequestException(Message.NO_MEMBER_NICK);
-    if (response.memberStatus === MemberStatus.DELETE) throw new BadRequestException(Message.NO_MEMBER_NICK);
-    if (response.memberStatus === MemberStatus.BLOCK) throw new InternalServerErrorException(Message.BLOCKED_USER);
+    if (!response || response.memberStatus === MemberStatus.DELETE) {
+        throw new InternalServerErrorException(Message.NO_MEMBER_NICK);
+    } else if (response.memberStatus === MemberStatus.BLOCK) {
+        throw new InternalServerErrorException(Message.BLOCKED_USER);
+    }
 
-    const isMatch = memberPassword === response.memberPassword; // Replace with bcrypt.compare
-
-    //TODO: Implement password verification with bcrypt or similar library
-
+    const isMatch = await this.authService.comparePasswords(input.memberPassword, response.memberPassword);
     if (!isMatch) throw new InternalServerErrorException(Message.WRONG_PASSWORD);
-
+    response.accessToken = await this.authService.createToken(response);
+    
     return response;
     }
     
     public async updateMember(): Promise<string> {
-        console.log('Service: updatemember');
         return 'Member update successful';
     }
     

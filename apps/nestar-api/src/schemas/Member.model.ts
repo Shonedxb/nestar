@@ -27,15 +27,15 @@ const MemberSchema = new Schema(
         required: true,
     },
 
+    memberPassword: {
+        type: String,
+        required: true,
+        select: false,
+    },
+
     memberNick: {
         type: String,
         index: { unique: true, sparse: true },
-        required: true,
-    },
-
-    memberPassword: {
-        type: String,
-        select: false,
         required: true,
     },
 
