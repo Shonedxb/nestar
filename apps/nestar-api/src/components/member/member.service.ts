@@ -46,11 +46,17 @@ export class MemberService {
     }
     
     public async updateMember(): Promise<string> {
-        return 'Member update successful';
+        return 'Member update successful!';
     }
     
     public async getMember(): Promise<string> {
-        console.log('Service: getmember');
-        return 'getmember successful';
+        return 'getmember successful!';
+    }
+
+    public async getAllMemberbyAdmin(): Promise<string> {
+        return 'getAllMemberbyAdmin successful!';
+    }
+    public async updateMemberbyAdmin(): Promise<string> {
+        return 'updateMemberbyAdmin successful!';
     }
 }
