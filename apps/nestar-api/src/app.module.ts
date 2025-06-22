@@ -24,7 +24,7 @@ import { T } from './libs/types/common';
             error?.extensions?.exception?.response?.message || error?.extensions?.response?.message ||
             error?.message,
         };
-        console.log('graphQLFormattedError:', graphQLFormattedError);
+        console.log('GRAPHQL GLOBAL ERROR:', graphQLFormattedError);
         return graphQLFormattedError;
       },
     }),

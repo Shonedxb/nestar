@@ -27,7 +27,7 @@ export class Member {
     @Field(() => String, { nullable: true })
     memberFullName?: string;
 
-    @Field(() => String, { nullable: true }) // Make optional
+    @Field(() => String, { nullable: true })
     memberImage?: string;
 
     @Field(() => String, { nullable: true })
