@@ -1,7 +1,7 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { PropertyService } from './property.service';
 import { Property, Properties } from '../../libs/dto/property/property';
-import { PropertiesInquiry, PropertyInput } from '../../libs/dto/property/property.input';
+import { AgentPropertiesInquiry, PropertiesInquiry, PropertyInput } from '../../libs/dto/property/property.input';
 import { MemberType } from '../../libs/enums/member.enum';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UseGuards } from '@nestjs/common';
@@ -37,13 +37,16 @@ export class PropertyResolver {
     }
 
     @Roles(MemberType.AGENT)
-    @UseGuards(RolesGuard)
-    @Mutation((returns) => Property)
-    public async updateProperty(@Args('input') input: PropertyUpdate, @AuthMember('_id') memberId: ObjectId): Promise<Property> {
-        console.log('Mutation: updateProperty');
-        input._id = shapeIntoMongoObjectId(input._id);
-        return await this.propertyService.updateProperty(memberId, input);  
-    }
+	@UseGuards(RolesGuard)
+	@Mutation((returns) => Property)
+	public async updateProperty(
+		@Args('input') input: PropertyUpdate,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Property> {
+		console.log('Mutation:updateProperty');
+		input._id = shapeIntoMongoObjectId(input._id);
+		return await this.propertyService.updateProperty(memberId, input);
+	}
 
     @UseGuards(WithoutGuard)
     @Query((returns) => Properties)
@@ -53,5 +56,13 @@ export class PropertyResolver {
     ): Promise<Properties> {
         console.log('Query: getProperties');
         return await this.propertyService.getProperties(memberId, input);    
+    }
+
+    @Roles(MemberType.AGENT)
+    @UseGuards(RolesGuard)
+    @Query((returns) => Properties)
+    public async getAgentProperties(@Args('input') input: AgentPropertiesInquiry, @AuthMember('_id') memberId: ObjectId): Promise<Properties> {
+        console.log('Query: getAgentProperties');
+        return await this.propertyService.getAgentProperties(memberId, input);  
     }
 }
