@@ -5,8 +5,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import BoardArticleSchema from '../../schemas/BoardArticle.model';
 import { AuthModule } from '../auth/auth.module';
 import { MemberModule } from '../member/member.module';
-import { View } from '../../libs/dto/view/view';
 import { ViewModule } from '../view/view.module';
+import { LikeModule } from '../like/like.module';
 
 @Module({
   imports: [
@@ -19,6 +19,7 @@ import { ViewModule } from '../view/view.module';
     AuthModule,
     MemberModule,
     ViewModule,
+    LikeModule,
   ],
   providers: [BoardArticleResolver, BoardArticleService],
   exports: [BoardArticleService],
