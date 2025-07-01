@@ -38,48 +38,12 @@ export class LikeService {
 		return modifier;
 	}
 
-	public async checkLikeExistaence(input: LikeInput): Promise<MeLiked[]> {
+	public async checkLikeExistence(input: LikeInput): Promise<MeLiked[]> {
 		const { memberId, likeRefId } = input;
 		const result = await this.likeModel.findOne({ memberId: memberId, likeRefId: likeRefId }).exec();
 		return result ? [{ memberId: memberId, likeRefId: likeRefId, myFavorite: true }] : [];
 	}
-
-	// public async getFavoriteProperties(memberId: ObjectId, input: OrdinaryInquiry): Promise<Properties> {
-	// 	const { page, limit } = input;
-	// 	const match: T = { likeGroup: LikeGroup.PROPERTY, memberId: memberId };
-	// 	const data: T = await this.likeModel
-	// 		.aggregate([
-	// 			{ $match: match },
-	// 			{ $sort: { updatedAt: -1 } },
-	// 			{
-	// 				$lookup: {
-	// 					from: 'properties',
-	// 					localField: 'likeRefId',
-	// 					foreignField: '_id',
-	// 					as: 'favoriteProperty',
-	// 				},
-	// 			},
-	// 			{ $unwind: '$favoriteProperty' },
-	// 			{
-	// 				$facet: {
-	// 					list: [
-	// 						{ $skip: (page - 1) * limit },
-	// 						{ $limit: limit },
-	// 						// lookupFavorite,
-	// 						{ $unwind: '$favoriteProperty.memberData' },
-	// 					],
-	// 					metaCounter: [{ $count: 'total' }],
-	// 				},
-	// 			},
-	// 		])
-	// 		.exec();
-	// 	console.log('data: ', data);
-	// 	const result: Properties = { list: [], metaCounter: data[0].metaCounter };
-	// 	result.list = data[0].list.map((ele) => ele.favoriteProperty);
-	// 	console.log('result', result);
-	// 	return result;
-	// }
-	
 }
+
 
 
