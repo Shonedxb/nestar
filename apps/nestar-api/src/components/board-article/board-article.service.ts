@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, InternalServerErrorException } from '@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId, Schema } from 'mongoose';
 import { BoardArticle, BoardArticles } from '../../libs/dto/board-article/board-article';
-import { lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
+import { lookupAuthMemberLiked, lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
 import { AllBoardArticlesInquiry, BoardArticleInput, BoardArticlesInquiry } from '../../libs/dto/board-article/board-article.input';
 import { BoardArticleUpdate } from '../../libs/dto/board-article/board-article.update';
 import { BoardArticleStatus } from '../../libs/enums/board-article.enum';
@@ -36,7 +36,7 @@ export class BoardArticleService {
 			});
 			return result;
 		} catch (err) {
-			console.log('Error: Service.model');
+			console.log('Error, Service.model:', err.message);
 			throw new BadRequestException(Message.CREATE_FAILED);
 		}
 	}
@@ -60,19 +60,21 @@ export class BoardArticleService {
 			// meliked
 			const likeInput = { memberId: memberId, likeRefId: articleId, likeGroup: LikeGroup.ARTICLE };
 			targetBoardArticle.meLiked = await this.likeService.checkLikeExistence(likeInput);
+		} else {
+			targetBoardArticle.meLiked = [];
 		}
 		targetBoardArticle.memberData = await this.memberService.getMember(memberId, targetBoardArticle.memberId);
 		return targetBoardArticle;
 	}
 
-	public async updateBoardArticle(memberid: ObjectId, input: BoardArticleUpdate): Promise<BoardArticle> {
+	public async updateBoardArticle(memberId: ObjectId, input: BoardArticleUpdate): Promise<BoardArticle> {
 		const { _id, articleStatus } = input;
 
 		const result = await this.boardArticleModel
 			.findOneAndUpdate(
 				{
 					_id: _id,
-					memberId: memberid,
+					memberId: memberId,
 					articleStatus: BoardArticleStatus.ACTIVE,
 				},
 				input,
@@ -84,7 +86,7 @@ export class BoardArticleService {
 
 		if (articleStatus === BoardArticleStatus.DELETE) {
 			await this.memberService.memberStatsEditor({
-				_id: memberid,
+				_id: memberId,
 				targetKey: 'memberArticles',
 				modifier: -1,
 			});
@@ -113,7 +115,7 @@ export class BoardArticleService {
 						list: [
 							{ $skip: (input.page - 1) * input.limit },
 							{ $limit: input.limit },
-							// meLiked
+							lookupAuthMemberLiked(memberId, '$_id'),
 							lookupMember,
 							{ $unwind: '$memberData' },
 						],
